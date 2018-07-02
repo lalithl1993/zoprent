@@ -64,57 +64,6 @@ function combineDateTime($date,$time)
 	$myDateTime = new DateTime($combinedDT, $gmtTimezone);
 	return($myDateTime->format('Y-m-d H:i:s O'));
 }
-/*//get dates, make api call fill areas(bike stations)
-    if(isset($_POST['set_dates'])){ //check if form was submitted
-        $fromDate = $_POST['from_date'];
-        $fromTime = $_POST['from_time'];
-        $toDate = $_POST['to_date'];
-        $toTime = $_POST['to_time'];
-		$city = $_POST['city'];
-		
-	$_SESSION['from_date']=$fromDate;
-    $_SESSION['db_f_date']=date("Y-m-d",strtotime($fromDate));
-    
-    $_SESSION['to_date']=$toDate;
-    $_SESSION['db_t_date']=date("Y-m-d", strtotime($toDate));
-    
-	$_SESSION['to_time'] = $toTime;
-	$_SESSION['from_time'] = $fromTime;
-	
-	
-	$dateFrom = combineDateTime($fromDate,$fromTime);
-    $dateTo = combineDateTime($toDate,$toTime);
-
-	$onn = getAPI('onn');
-	 $parameters = array (
-	  'fromDate' => $dateFrom,
-	  'toDate' => $dateTo,
-	  'cityLatitude' => 0,
-	  'cityLongitude' => 0,
-	  'cityName' => $city,
-	);
-	$resultArray=$onn->getAvailableBikes($parameters);
-	
-	$bikeStations = $resultArray['bikeStations'];
-	unset($resultArray);
-	$i=0;
-	//$bikeStationCodes=array();
-	$options="";
-	foreach($bikeStations as $bikeStation)
-	{
-	  $options .= "<option value='".$i++."'>".$bikeStation['bikeStationArea']."</option>
-	  ";
-	    //$bikeStationCodes[$bikeStation['bikeStationArea']]= $i++;
-	}
-	unset($i);
-        //$bikeArea=$_POST['bikeArea'];
-
-        //echo "Values are: ".$fromDate." ".$fromTime." ".$toDate." ".$toTime." ".$bikeArea." ".$uids;
-    }   
-   // $dateTime=$fromDate.$fromTime;
-   // $date = date("Y-m-d H:i:s",$dateTime);
-	
-	//end set dates*/
 ?>
 
 
@@ -603,6 +552,27 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
 	
 	
 	<script>
+	
+	function change_date()
+			{
+				from_date=$("#from_date").val();
+				to_date=$("#to_date").val();
+				from_time=$("#from_time").val();
+				to_time=$("#to_time").val();
+				
+				jQuery.ajax({
+						type:"POST",
+						url:"ajax.php?f=change_date",
+						datatype:"text",
+						data:{from_date:from_date,to_date:to_date,from_time:from_time,to_time:to_time},
+						success:function(response)
+						{
+							location.reload();
+						},
+						error:function (xhr, ajaxOptions, thrownError){}
+					});
+			}
+	
 	function change_location(id)
 	{
 		location_user=$("#"+id).val();
@@ -719,11 +689,10 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
                                                 <input type="text" class="form-control" id="from_date" placeholder="From Date" value="<?php echo $_SESSION['from_date'];?>" name="from_date" onchange="change_date();" style="width: 200px;">
                                             </div>
                                         </div>
-
                                         <div class="col-md-2 col-sm-12">
                                             <div class="form-group input-group">
-                                                <label for="input-payment-firstname" class="control-label" style="font-family: ab2;color: #606062;">From Time</label> <br />
-                                                <select name="from_time" class="form-control" value="<?php $_SESSION['to_time']?>">
+                                                <label for="input-payment-firstname" class="control-label" style="font-family: ab2;color: #606062;" >From Time</label> <br />
+                                                <select name="from_time" id="from_time" class="form-control" value="<?php $_SESSION['from_time']?>" onchange="change_date();">
                                                     <option value="7:00:00">7:00am</option>
                                                     <option value="7:30:00">7:30am</option>
                                                     <option value="8:00:00">8:00am</option>
@@ -765,14 +734,14 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
 
                                         <div class="col-md-2 col-sm-12">
                                             <div class="form-group ">
-                                                <label for="input-payment-firstname" class="control-label" style="font-family: ab2;color: #606062;">To Date</label>
-                                                <input type="text" class="form-control" id="to_date" placeholder="To Date" value="<?php echo $_SESSION['to_date'];?>" name="to_date" onchange="change_date();" style="width: 200px;">
+                                                <label for="input-payment-firstname" class="control-label" style="font-family: ab2;color: #606062;" >To Date</label>
+                                                <input type="text" class="form-control" id="to_date" placeholder="To Date"  value="<?php echo $_SESSION['to_date'];?>" name="to_date" onchange="change_date();" style="width: 200px;">
                                             </div>
                                         </div>
                                         <div class="col-md-1 col-sm-12">
                                             <div class="form-group input-group">
                                                 <label for="input-payment-firstname" class="control-label" style="font-family: ab2;color: #606062;">To Time</label> <br />
-                                                <select name="to_time" class="form-control" value="<?php $_SESSION['to_time']?>">
+                                                <select name="to_time" id="to_time" class="form-control" value="<?php $_SESSION['to_time']?>" onchange="change_date();">
                                                     <option value="7:00:00">7:00am</option>
                                                     <option value="7:30:00">7:30am</option>
                                                     <option value="8:00:00">8:00am</option>
@@ -828,12 +797,16 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
    <?php
    //get dates, make api call fill areas(bike stations)
     if(isset($_POST['set_dates'])){ //check if form was submitted
-        $fromDate = $_POST['from_date'];
-        $fromTime = $_POST['from_time'];
-        $toDate = $_POST['to_date'];
-        $toTime = $_POST['to_time'];
-		$city = $_POST['city'];
+        $fromDate = $_SESSION['from_date'];
 		
+        $fromTime = $_SESSION['from_time'];
+        
+		$toDate = $_SESSION['to_date'];
+        
+		$toTime = $_SESSION['to_time'];
+		
+		$city = $_POST['city'];
+	/*	
 	$_SESSION['from_date']=$fromDate;
     $_SESSION['db_f_date']=date("Y-m-d",strtotime($fromDate));
     
@@ -842,7 +815,7 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
     
 	$_SESSION['to_time'] = $toTime;
 	$_SESSION['from_time'] = $fromTime;
-	
+	*/
 	
 	$dateFrom = combineDateTime($fromDate,$fromTime);
     $dateTo = combineDateTime($toDate,$toTime);
@@ -868,6 +841,7 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
 	  ";
 	    //$bikeStationCodes[$bikeStation['bikeStationArea']]= $i++;
 	}
+	echo $options;
 	unset($i);
     }   
  
@@ -896,12 +870,18 @@ src="https://www.facebook.com/tr?id=1945186389056283&ev=PageView
                          
 if(isset($_POST['get_bikes']))
 {
-    $from_date=$_POST['from_date'];
-    $to_date=$_POST['to_date'];
-    $from_time=$_POST['from_time'];
-    $to_time=$_POST['to_time'];
+	
+	$from_date = $_SESSION['from_date'];
+		
+        $from_time = $_SESSION['from_time'];
+        
+		$to_date = $_SESSION['to_date'];
+        
+		$to_time = $_SESSION['to_time'];
+		
+    
     $city=$_POST['city'];
-    $bikeStationCode=$_POST['bikeStationCode'];
+    $bikeStationCode=$_POST['bikeArea'];
 
     $dateFrom = convertDate($from_date,$from_time);
     $dateTo = convertDate($to_date,$to_time);
@@ -990,7 +970,7 @@ foreach($value[1] as $bikeIdvar)
       }
       $i++;
 }
-
+}
 ?>
 
 						
@@ -1042,16 +1022,7 @@ foreach($value[1] as $bikeIdvar)
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	
-	 <script src="js/timepicki.js"></script>
-    <script>
-	$('#from_time').timepicki();
-    </script>
-	<link href="time_picker/css/timepicki.css" rel="stylesheet">
-    <link href="time_picker/css/style.css" rel="stylesheet">
-    <script src="time_picker/js/timepicki.js"></script>
-	<script>
-	$('#timepicker1').timepicki();
-    </script>
+	 
 	<script>
   $( function() {
     $( "#from_date").datepicker({ dateFormat: "dd-mm-yy"}).val();
