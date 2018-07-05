@@ -1,1 +1,8 @@
-
+pagination
+window resize
+design UI and service
+Submissions Error message display(header bar/no active submission)
+browse , drag drop
+list of select and upload document
+save, edit , replace drop down
+save/replace button
