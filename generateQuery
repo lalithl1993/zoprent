@@ -1,0 +1,145 @@
+<?php
+include("admin/config.php");
+?>
+<html>
+<head>
+    <?php
+    //$type='0';
+    if(isset($_POST['submit']))
+    {
+		$vendorId=$_POST['vendor'];
+		$productsIn=$_POST['product'];
+		$vendorCityId=8;//todo to be implimented
+		
+		$vendorName=getVendorName($vendorId);
+		$products=filterProducts($productsIn);
+		
+        genrateQuery($vendorId,$products,$vendorName,$vendorCityId);
+        genrateQuery1($products);
+
+
+    }
+	function getVendorName($vendor)
+	{
+		$sql=mysql_query("select vendor_name from vendor where id=$vendor");
+        $row1=mysql_fetch_array($sql);
+		$vendorName=$row1['vendor_name'];
+		return($vendorName);
+	}
+	function filterProducts($productsf)
+	{
+	$temp;
+	foreach($productsf as $product)
+		{
+			if(isset($product['vehicleId'])
+			{
+			$temp[]=$product;
+			}
+			
+		}
+		return($temp);
+	}
+    function  genrateQuery($vendorId,$products,$vendorName,$vendorCityId)
+    {
+        $add="";
+        $str="INSERT INTO product_details(vendor_id,vendor_name,vendor_city,sub_category,oneday_price,weekend,monthly,qty,priority) VALUES";
+        
+        foreach ($products as $var)
+        {
+           // echo $var.'<br>';
+            $add.="/*$var['vehicleName']*/('".$vendorId."','".$vendorName."',$vendorCityId,".$var['vehicleId'].",$var['vehicleWday'],$var['vehicleWend'],0,1,151),";
+        }
+        echo $str.$add;
+        echo"<br>";
+        echo"<br>";
+    }
+
+    function  genrateQuery1($products)
+    {
+       
+        $add="";
+        $str="INSERT INTO carfleet(carname,Price_Wkd,Price_Wknd,Deposit,vid) VALUES";
+       // ('$car','0','0','0','$vid');
+        foreach ($vechicle as $var)
+        {
+            $sql=mysql_query("select name from sub_category WHERE id=$var['vehicleId']");
+            $row1=mysql_fetch_array($sql);
+            $vech_name=$row1['name'];
+            // echo $var.'<br>';
+            $add.="('".$vech_name."',50,50,0,115),";//todo: change price details
+        }
+        echo $str.$add;
+        echo"<br>";
+        echo"<br>";
+        
+    }
+
+    //function  genrateQuery2($vendor,$vechicle,$vendorid)
+    //{
+        
+    //    $add="";
+    //    $str="INSERT INTO fleet(carname,Price_Wkd,Price_Wknd,Deposit,vid) VALUES";
+    //    // ('$car','0','0','0','$vid');
+    //    foreach ($vechicle as $var)
+    //    {
+    //        $sql=mysql_query("select name from sub_category WHERE id=$var");
+    //        $row1=mysql_fetch_array($sql);
+    //        $vech_name=$row1['name'];
+    //        // echo $var.'<br>';
+    //        $add.="('".$vech_name."',0,0,0,".$vendorid."),";
+    //    }
+    //    echo $str.$add;
+    //    echo"<br>";
+    //    echo"<br>";
+        
+    //}
+    ?>
+    
+
+</head>
+    <body>
+        <form class="form-horizontal" action="#" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="control-label col-lg-2">Vendor Name<strong style="color:red;">*</strong></label>
+                <div class="col-lg-6">
+                    <select id="vendor" name="vendor" required class="form-control">
+					    <option value="">Select Type</option>
+						    <?php
+                            $sql=mysql_query("select id,vendor_name from vendor");
+                            while($row=mysql_fetch_array($sql))
+                            {
+                                echo '<option name="vendor" value='.$row['id'].'>'.$row['vendor_name'].'</option>';
+                                //echo '<input type="text" value='.$row['vendor_name'].' hidden> <br>';
+                            }
+                            
+                            ?>
+				     </select>
+                 </div>
+            </div>
+            <div class="form-group">
+                <?php
+                $sql=mysql_query("select id,name,main_category from sub_category WHERE NOT main_category=4 ORDER BY main_category");
+				$i=0;
+                while($row=mysql_fetch_array($sql))
+                {
+								echo'<fieldset>
+						
+						<input type="checkbox" name="product[.'$i.'][vehicleId]" value=".'$row['id'].'"> 
+						<label>.'$row['name'].'</label>
+						<input type="text" name="product[.'$i.'][vehicleWday]" placeholder="WeekDay price"/>
+						<input type="text" name="product[.'$i.'][vehicleWend]" placeholder="WeekEnd price"/>
+						<input type="hidden" name="product[.'$i.'][vehicleName]" value=".'$row['name'].'" />
+						<br/>
+						
+					</fieldset>';
+                    //echo'<input type="checkbox" name="vehicle[]" value='.$row['id'].'> '.'  Id='.$row['id'].'&nbsp; &nbsp; &nbsp;'.$row['name'].'<br>';
+					$i++;
+                }
+                ?>
+            </div>
+            <div class="text-right">
+                  <button type="submit" class="btn btn-primary" name="submit" >Submit <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+        </form>
+    </body>
+</html>
